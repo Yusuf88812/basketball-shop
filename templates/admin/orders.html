@@ -1,0 +1,69 @@
+{% extends "admin/base.html" %}
+{% block title %}🛒 Buyurtmalar{% endblock %}
+{% block nav_orders %}active{% endblock %}
+{% block page_title %}🛒 Buyurtmalar boshqaruvi{% endblock %}
+
+{% block content %}
+<div class="order-filters">
+    <a href="/admin/orders" class="filter-tab {% if not current_status %}active{% endif %}">Hammasi</a>
+    <a href="/admin/orders?status=new" class="filter-tab {% if current_status == 'new' %}active{% endif %}">🆕 Yangi</a>
+    <a href="/admin/orders?status=confirmed"
+        class="filter-tab {% if current_status == 'confirmed' %}active{% endif %}">✅ Tasdiqlangan</a>
+    <a href="/admin/orders?status=delivering"
+        class="filter-tab {% if current_status == 'delivering' %}active{% endif %}">🚚 Yetkazilmoqda</a>
+    <a href="/admin/orders?status=delivered"
+        class="filter-tab {% if current_status == 'delivered' %}active{% endif %}">📦 Yetkazildi</a>
+    <a href="/admin/orders?status=cancelled"
+        class="filter-tab {% if current_status == 'cancelled' %}active{% endif %}">❌ Bekor</a>
+</div>
+
+<div class="table-wrapper">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Mijoz</th>
+                <th>Telefon</th>
+                <th>Manzil</th>
+                <th>Jami</th>
+                <th>Holat</th>
+                <th>Sana</th>
+                <th>Amallar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td><strong>#{{ order.id }}</strong></td>
+                <td>{{ order.customer_name }}</td>
+                <td>{{ order.phone }}</td>
+                <td class="address-cell">{{ order.address[:30] }}{% if order.address|length > 30 %}...{% endif %}</td>
+                <td><strong>{{ "{:,.0f}".format(order.total) }} so'm</strong></td>
+                <td>
+                    {% if order.status == 'new' %}
+                    <span class="badge badge-new">🆕 Yangi</span>
+                    {% elif order.status == 'confirmed' %}
+                    <span class="badge badge-confirmed">✅ Tasdiqlangan</span>
+                    {% elif order.status == 'delivering' %}
+                    <span class="badge badge-delivering">🚚 Yetkazilmoqda</span>
+                    {% elif order.status == 'delivered' %}
+                    <span class="badge badge-delivered">📦 Yetkazildi</span>
+                    {% elif order.status == 'cancelled' %}
+                    <span class="badge badge-cancelled">❌ Bekor</span>
+                    {% endif %}
+                </td>
+                <td>{{ order.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                <td>
+                    <a href="/admin/orders/{{ order.id }}" class="btn btn-sm btn-outline">👁️ Ko'rish</a>
+                </td>
+            </tr>
+            {% endfor %}
+            {% if not orders %}
+            <tr>
+                <td colspan="8" class="empty-cell">Buyurtmalar yo'q</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

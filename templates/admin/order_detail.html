@@ -1,0 +1,93 @@
+{% extends "admin/base.html" %}
+{% block title %}Buyurtma #{{ order.id }}{% endblock %}
+{% block nav_orders %}active{% endblock %}
+{% block page_title %}📋 Buyurtma #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="order-detail-container">
+    <div class="order-detail-header">
+        <div class="order-detail-info">
+            <h2>Buyurtma #{{ order.id }}</h2>
+            <span class="order-date">{{ order.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+        </div>
+        <div class="order-status-current">
+            {% if order.status == 'new' %}
+            <span class="badge badge-new badge-lg">🆕 Yangi</span>
+            {% elif order.status == 'confirmed' %}
+            <span class="badge badge-confirmed badge-lg">✅ Tasdiqlangan</span>
+            {% elif order.status == 'delivering' %}
+            <span class="badge badge-delivering badge-lg">🚚 Yetkazilmoqda</span>
+            {% elif order.status == 'delivered' %}
+            <span class="badge badge-delivered badge-lg">📦 Yetkazildi</span>
+            {% elif order.status == 'cancelled' %}
+            <span class="badge badge-cancelled badge-lg">❌ Bekor qilindi</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="order-detail-grid">
+        <div class="detail-card">
+            <h3>👤 Mijoz ma'lumotlari</h3>
+            <div class="detail-row"><span>Ismi:</span><strong>{{ order.customer_name }}</strong></div>
+            <div class="detail-row"><span>Telefon:</span><strong>{{ order.phone }}</strong></div>
+            <div class="detail-row"><span>Manzil:</span><strong>{{ order.address }}</strong></div>
+            {% if order.comment %}
+            <div class="detail-row"><span>Izoh:</span><em>{{ order.comment }}</em></div>
+            {% endif %}
+        </div>
+
+        <div class="detail-card">
+            <h3>📦 Tovarlar</h3>
+            <div class="order-items-list">
+                {% for item in order.items %}
+                <div class="order-item-row">
+                    <span class="item-name">{{ item.product_name }}</span>
+                    <span class="item-qty">{{ item.quantity }} × {{ "{:,.0f}".format(item.price) }} so'm</span>
+                    <span class="item-total">{{ "{:,.0f}".format(item.price * item.quantity) }} so'm</span>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="order-total-row">
+                <span>Jami:</span>
+                <strong>{{ "{:,.0f}".format(order.total) }} so'm</strong>
+            </div>
+        </div>
+
+        <div class="detail-card">
+            <h3>🚚 Holatni o'zgartirish</h3>
+            <form method="post" action="/admin/orders/{{ order.id }}/status" class="status-form">
+                <div class="status-buttons">
+                    <button name="status" value="new" class="status-btn {% if order.status == 'new' %}active{% endif %}"
+                        onclick="return confirm('Holatni o\'zgartirmoqchimisiz?')">
+                        🆕 Yangi
+                    </button>
+                    <button name="status" value="confirmed"
+                        class="status-btn {% if order.status == 'confirmed' %}active{% endif %}"
+                        onclick="return confirm('Holatni o\'zgartirmoqchimisiz?')">
+                        ✅ Tasdiqlash
+                    </button>
+                    <button name="status" value="delivering"
+                        class="status-btn {% if order.status == 'delivering' %}active{% endif %}"
+                        onclick="return confirm('Holatni o\'zgartirmoqchimisiz?')">
+                        🚚 Yetkazilmoqda
+                    </button>
+                    <button name="status" value="delivered"
+                        class="status-btn {% if order.status == 'delivered' %}active{% endif %}"
+                        onclick="return confirm('Holatni o\'zgartirmoqchimisiz?')">
+                        📦 Yetkazildi
+                    </button>
+                    <button name="status" value="cancelled"
+                        class="status-btn btn-cancel {% if order.status == 'cancelled' %}active{% endif %}"
+                        onclick="return confirm('Buyurtmani bekor qilmoqchimisiz?')">
+                        ❌ Bekor qilish
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="order-detail-actions">
+        <a href="/admin/orders" class="btn btn-outline">← Buyurtmalarga qaytish</a>
+    </div>
+</div>
+{% endblock %}

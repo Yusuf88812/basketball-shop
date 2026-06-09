@@ -1,0 +1,191 @@
+{% extends "store/base.html" %}
+{% block title %}🏀 Basketball Shop — Premium Basketbol Do'koni{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-bg-effects">
+        <div class="hero-ball hero-ball-1">🏀</div>
+        <div class="hero-ball hero-ball-2">🏀</div>
+        <div class="hero-ball hero-ball-3">🏀</div>
+    </div>
+    <div class="container hero-content">
+        <div class="hero-text">
+            <span class="hero-badge">🔥 Premium Basketbol Do'koni</span>
+            <h1 class="hero-title">
+                Basketbol <span class="gradient-text">Dunyosi</span>ga Xush Kelibsiz
+            </h1>
+            <p class="hero-subtitle">NBA brendlari, professional sport kiyimlari, krossovkalar va aksessuarlar — hammasi
+                bir joyda!</p>
+            <div class="hero-buttons">
+                <a href="/catalog" class="btn btn-primary btn-lg">
+                    <span>🛒</span> Xarid qilish
+                </a>
+                <a href="#categories" class="btn btn-outline btn-lg">
+                    <span>📦</span> Katalog
+                </a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-number">500+</span>
+                    <span class="stat-label">Tovarlar</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">1000+</span>
+                    <span class="stat-label">Mijozlar</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">24/7</span>
+                    <span class="stat-label">Xizmat</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="section" id="categories">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">📦 Kategoriyalar</span>
+            <h2 class="section-title">Tovar Kategoriyalari</h2>
+        </div>
+        <div class="categories-grid">
+            {% for cat in categories %}
+            <a href="/catalog?category={{ cat.id }}" class="category-card">
+                <span class="category-icon">{{ cat.icon }}</span>
+                <h3>{{ cat.name }}</h3>
+                <p>{{ cat.products|length }} ta tovar</p>
+            </a>
+            {% endfor %}
+            {% if not categories %}
+            <div class="empty-state">
+                <p>Hozircha kategoriyalar yo'q</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+{% if featured %}
+<section class="section section-dark">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">⭐ Tavsiya etilgan</span>
+            <h2 class="section-title">Eng Yaxshi Tovarlar</h2>
+        </div>
+        <div class="products-grid">
+            {% for product in featured %}
+            <div class="product-card" data-id="{{ product.id }}">
+                <div class="product-image">
+                    <img src="{{ product.image }}" alt="{{ product.name }}" loading="lazy">
+                    {% if product.old_price %}
+                    <span class="product-badge badge-sale">-{{ ((product.old_price - product.price) / product.old_price
+                        * 100)|int }}%</span>
+                    {% endif %}
+                    {% if product.is_featured %}
+                    <span class="product-badge badge-hot">🔥 HIT</span>
+                    {% endif %}
+                </div>
+                <div class="product-info">
+                    <h3 class="product-name">{{ product.name }}</h3>
+                    <div class="product-category">
+                        {% if product.category %}{{ product.category.icon }} {{ product.category.name }}{% endif %}
+                    </div>
+                    <div class="product-price">
+                        <span class="current-price">{{ "{:,.0f}".format(product.price) }} so'm</span>
+                        {% if product.old_price %}
+                        <span class="old-price">{{ "{:,.0f}".format(product.old_price) }} so'm</span>
+                        {% endif %}
+                    </div>
+                    <div class="product-actions">
+                        <a href="/product/{{ product.id }}" class="btn btn-sm btn-outline">Ko'rish</a>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn"
+                            onclick="addToCart({{ product.id }}, '{{ product.name }}', {{ product.price }}, '{{ product.image }}')">
+                            🛒 Savatga
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- New Products -->
+{% if new_products %}
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">🆕 Yangi kelgan</span>
+            <h2 class="section-title">Yangi Tovarlar</h2>
+        </div>
+        <div class="products-grid">
+            {% for product in new_products %}
+            <div class="product-card" data-id="{{ product.id }}">
+                <div class="product-image">
+                    <img src="{{ product.image }}" alt="{{ product.name }}" loading="lazy">
+                    {% if product.old_price %}
+                    <span class="product-badge badge-sale">-{{ ((product.old_price - product.price) / product.old_price
+                        * 100)|int }}%</span>
+                    {% endif %}
+                </div>
+                <div class="product-info">
+                    <h3 class="product-name">{{ product.name }}</h3>
+                    <div class="product-category">
+                        {% if product.category %}{{ product.category.icon }} {{ product.category.name }}{% endif %}
+                    </div>
+                    <div class="product-price">
+                        <span class="current-price">{{ "{:,.0f}".format(product.price) }} so'm</span>
+                        {% if product.old_price %}
+                        <span class="old-price">{{ "{:,.0f}".format(product.old_price) }} so'm</span>
+                        {% endif %}
+                    </div>
+                    <div class="product-actions">
+                        <a href="/product/{{ product.id }}" class="btn btn-sm btn-outline">Ko'rish</a>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn"
+                            onclick="addToCart({{ product.id }}, '{{ product.name }}', {{ product.price }}, '{{ product.image }}')">
+                            🛒 Savatga
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="section-footer">
+            <a href="/catalog" class="btn btn-primary btn-lg">📦 Barcha tovarlarni ko'rish</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Features -->
+<section class="section section-dark">
+    <div class="container">
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🚚</div>
+                <h3>Tezkor Yetkazib Berish</h3>
+                <p>Toshkent bo'ylab 1-2 kun ichida yetkazib beramiz</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">✅</div>
+                <h3>Original Tovarlar</h3>
+                <p>Faqat original brendlar va sertifikatlangan tovarlar</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💳</div>
+                <h3>Qulay To'lov</h3>
+                <p>Naqd yoki karta orqali to'lash imkoniyati</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔄</div>
+                <h3>Qaytarish Kafolati</h3>
+                <p>14 kun ichida tovarni qaytarish mumkin</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

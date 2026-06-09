@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Admin Login — Basketball Shop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/admin.css">
+</head>
+
+<body class="login-body">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <span class="login-icon">🏀</span>
+                <h1>Admin Panel</h1>
+                <p>Basketball Shop boshqaruv paneli</p>
+            </div>
+            {% if error %}
+            <div class="alert alert-error">⚠️ {{ error }}</div>
+            {% endif %}
+            <form method="post" action="/admin/login" class="login-form">
+                <div class="form-group">
+                    <label for="username">👤 Login</label>
+                    <input type="text" id="username" name="username" required placeholder="admin" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="password">🔒 Parol</label>
+                    <input type="password" id="password" name="password" required placeholder="••••••"
+                        class="form-input">
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg btn-full">🚀 Kirish</button>
+            </form>
+            <a href="/" class="back-link">← Do'konga qaytish</a>
+        </div>
+    </div>
+</body>
+
+</html>

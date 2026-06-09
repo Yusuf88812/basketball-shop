@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Panel{% endblock %} — Basketball Shop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/admin.css">
+</head>
+
+<body class="admin-body">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-logo">🏀</span>
+            <span class="sidebar-title">Admin Panel</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/admin" class="sidebar-link {% block nav_dashboard %}{% endblock %}">
+                <span class="sidebar-icon">📊</span> Dashboard
+            </a>
+            <a href="/admin/products" class="sidebar-link {% block nav_products %}{% endblock %}">
+                <span class="sidebar-icon">📦</span> Tovarlar
+            </a>
+            <a href="/admin/categories" class="sidebar-link {% block nav_categories %}{% endblock %}">
+                <span class="sidebar-icon">📂</span> Kategoriyalar
+            </a>
+            <a href="/admin/orders" class="sidebar-link {% block nav_orders %}{% endblock %}">
+                <span class="sidebar-icon">🛒</span> Buyurtmalar
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="/" class="sidebar-link">
+                <span class="sidebar-icon">🌐</span> Do'konga o'tish
+            </a>
+            <a href="/admin/logout" class="sidebar-link logout-link">
+                <span class="sidebar-icon">🚪</span> Chiqish
+            </a>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <header class="admin-header">
+            <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+            <div class="header-info">
+                <h2>{% block page_title %}Dashboard{% endblock %}</h2>
+            </div>
+            <div class="header-user">
+                <span>👤 {{ admin.username }}</span>
+            </div>
+        </header>
+        <div class="admin-content">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('sidebarToggle').addEventListener('click', function () {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

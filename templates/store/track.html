@@ -1,0 +1,92 @@
+{% extends "store/base.html" %}
+{% block title %}📋 Buyurtma kuzatish — Basketball Shop{% endblock %}
+
+{% block content %}
+<section class="section page-section">
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">📋 Buyurtma Kuzatish</h1>
+            <p class="page-subtitle">Telefon raqamingizni kiritib buyurtmangiz holatini kuzating</p>
+        </div>
+
+        <div class="track-container">
+            <form id="trackForm" class="track-form">
+                <div class="track-input-group">
+                    <input type="tel" id="trackPhone" placeholder="+998 90 123 45 67" class="form-input" required>
+                    <button type="submit" class="btn btn-primary">🔍 Qidirish</button>
+                </div>
+            </form>
+
+            <div id="trackResults" class="track-results"></div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const statusMap = {
+        'new': { text: '🆕 Yangi', color: '#6366f1', step: 1 },
+        'confirmed': { text: '✅ Tasdiqlangan', color: '#f59e0b', step: 2 },
+        'delivering': { text: '🚚 Yetkazilmoqda', color: '#3b82f6', step: 3 },
+        'delivered': { text: '📦 Yetkazildi', color: '#10b981', step: 4 },
+        'cancelled': { text: '❌ Bekor qilindi', color: '#ef4444', step: 0 }
+    };
+
+    document.getElementById('trackForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const phone = document.getElementById('trackPhone').value;
+        const results = document.getElementById('trackResults');
+        results.innerHTML = '<div class="loading">⏳ Qidirilmoqda...</div>';
+
+        try {
+            const res = await fetch(`/api/track/${encodeURIComponent(phone)}`);
+            if (!res.ok) {
+                const err = await res.json();
+                results.innerHTML = `<div class="empty-state"><div class="empty-icon">😢</div><h3>${err.error}</h3><p>Telefon raqamni tekshiring</p></div>`;
+                return;
+            }
+            const orders = await res.json();
+            results.innerHTML = orders.map(order => {
+                const s = statusMap[order.status] || statusMap['new'];
+                const steps = ['new', 'confirmed', 'delivering', 'delivered'];
+                return `
+                <div class="order-track-card">
+                    <div class="order-track-header">
+                        <div>
+                            <span class="order-number">Buyurtma #${order.id}</span>
+                            <span class="order-date">${order.created_at}</span>
+                        </div>
+                        <span class="status-badge" style="background:${s.color}">${s.text}</span>
+                    </div>
+                    ${order.status !== 'cancelled' ? `
+                    <div class="track-timeline">
+                        ${steps.map((step, i) => `
+                            <div class="timeline-step ${i < s.step ? 'active' : ''} ${i === s.step - 1 ? 'current' : ''}">
+                                <div class="timeline-dot"></div>
+                                <span class="timeline-label">${statusMap[step].text}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ` : ''}
+                    <div class="order-track-items">
+                        ${order.items.map(item => `
+                            <div class="track-item">
+                                <span>${item.name} × ${item.quantity}</span>
+                                <span>${(item.price * item.quantity).toLocaleString()} so'm</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="order-track-total">
+                        <span>Jami:</span>
+                        <span>${Number(order.total).toLocaleString()} so'm</span>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        } catch (err) {
+            results.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Xatolik yuz berdi</h3></div>';
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends "admin/base.html" %}
+{% block title %}📊 Dashboard{% endblock %}
+{% block nav_dashboard %}active{% endblock %}
+{% block page_title %}📊 Dashboard{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card stat-blue">
+        <div class="stat-icon">📦</div>
+        <div class="stat-info">
+            <span class="stat-value">{{ total_products }}</span>
+            <span class="stat-label">Tovarlar</span>
+        </div>
+    </div>
+    <div class="stat-card stat-orange">
+        <div class="stat-icon">🛒</div>
+        <div class="stat-info">
+            <span class="stat-value">{{ total_orders }}</span>
+            <span class="stat-label">Buyurtmalar</span>
+        </div>
+    </div>
+    <div class="stat-card stat-green">
+        <div class="stat-icon">💰</div>
+        <div class="stat-info">
+            <span class="stat-value">{{ "{:,.0f}".format(total_revenue) }}</span>
+            <span class="stat-label">Daromad (so'm)</span>
+        </div>
+    </div>
+    <div class="stat-card stat-red">
+        <div class="stat-icon">🆕</div>
+        <div class="stat-info">
+            <span class="stat-value">{{ new_orders }}</span>
+            <span class="stat-label">Yangi buyurtmalar</span>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3>🕐 Oxirgi buyurtmalar</h3>
+            <a href="/admin/orders" class="btn btn-sm btn-outline">Hammasi →</a>
+        </div>
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Mijoz</th>
+                        <th>Telefon</th>
+                        <th>Jami</th>
+                        <th>Holat</th>
+                        <th>Sana</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_orders %}
+                    <tr onclick="window.location='/admin/orders/{{ order.id }}'" style="cursor:pointer">
+                        <td>#{{ order.id }}</td>
+                        <td>{{ order.customer_name }}</td>
+                        <td>{{ order.phone }}</td>
+                        <td>{{ "{:,.0f}".format(order.total) }} so'm</td>
+                        <td>
+                            {% if order.status == 'new' %}
+                            <span class="badge badge-new">🆕 Yangi</span>
+                            {% elif order.status == 'confirmed' %}
+                            <span class="badge badge-confirmed">✅ Tasdiqlangan</span>
+                            {% elif order.status == 'delivering' %}
+                            <span class="badge badge-delivering">🚚 Yetkazilmoqda</span>
+                            {% elif order.status == 'delivered' %}
+                            <span class="badge badge-delivered">📦 Yetkazildi</span>
+                            {% elif order.status == 'cancelled' %}
+                            <span class="badge badge-cancelled">❌ Bekor</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ order.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% if not recent_orders %}
+                    <tr>
+                        <td colspan="6" class="empty-cell">Buyurtmalar yo'q</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3>⚠️ Kam qolgan tovarlar</h3>
+            <a href="/admin/products" class="btn btn-sm btn-outline">Hammasi →</a>
+        </div>
+        {% if low_stock %}
+        <div class="low-stock-list">
+            {% for p in low_stock %}
+            <div class="low-stock-item">
+                <img src="{{ p.image }}" alt="{{ p.name }}">
+                <div class="low-stock-info">
+                    <span class="low-stock-name">{{ p.name }}</span>
+                    <span class="low-stock-count {% if p.stock == 0 %}danger{% endif %}">
+                        {{ p.stock }} dona qoldi
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-cell">Barcha tovarlar yetarli</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

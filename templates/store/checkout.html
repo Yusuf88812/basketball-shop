@@ -1,0 +1,148 @@
+{% extends "store/base.html" %}
+{% block title %}💳 Buyurtma berish — Basketball Shop{% endblock %}
+
+{% block content %}
+<section class="section page-section">
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">💳 Buyurtma berish</h1>
+        </div>
+
+        <div class="checkout-layout">
+            <div class="checkout-form-container">
+                <form id="checkoutForm" class="checkout-form">
+                    <div class="form-group">
+                        <label for="name">Ismingiz *</label>
+                        <input type="text" id="name" name="customer_name" required placeholder="F.I.O."
+                            class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Telefon raqam *</label>
+                        <input type="tel" id="phone" name="phone" required placeholder="+998 90 123 45 67"
+                            class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Yetkazib berish manzili *</label>
+                        <textarea id="address" name="address" required placeholder="Shahar, tuman, ko'cha, uy raqami"
+                            class="form-input form-textarea"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="comment">Izoh (ixtiyoriy)</label>
+                        <textarea id="comment" name="comment" placeholder="Qo'shimcha ma'lumot..."
+                            class="form-input form-textarea"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg btn-full" id="submitBtn">
+                        ✅ Buyurtmani tasdiqlash
+                    </button>
+                </form>
+            </div>
+
+            <div class="checkout-summary">
+                <h3>📦 Buyurtma tarkibi</h3>
+                <div id="checkoutItems"></div>
+                <div class="checkout-total">
+                    <span>Jami:</span>
+                    <span id="checkoutTotal" class="total-amount">0 so'm</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Modal -->
+        <div class="modal" id="successModal" style="display:none;">
+            <div class="modal-content success-modal">
+                <div class="success-icon">✅</div>
+                <h2>Buyurtma qabul qilindi!</h2>
+                <p>Buyurtma raqamingiz: <strong id="orderId"></strong></p>
+                <p>Tez orada operator siz bilan bog'lanadi</p>
+                <div class="modal-actions">
+                    <a href="/" class="btn btn-primary">🏠 Bosh sahifaga</a>
+                    <a href="/track" class="btn btn-outline">📋 Buyurtmani kuzatish</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        renderCheckout();
+
+        document.getElementById('checkoutForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Yuborilmoqda...';
+
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            if (cart.length === 0) {
+                alert('Savat bo\'sh!');
+                btn.disabled = false;
+                btn.textContent = '✅ Buyurtmani tasdiqlash';
+                return;
+            }
+
+            const data = {
+                customer_name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                address: document.getElementById('address').value,
+                comment: document.getElementById('comment').value,
+                items: cart.map(item => ({ product_id: item.id, quantity: item.qty }))
+            };
+
+            try {
+                const res = await fetch('/api/checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                if (result.success) {
+                    localStorage.removeItem('cart');
+                    updateCartCount();
+                    document.getElementById('orderId').textContent = '#' + result.order_id;
+                    document.getElementById('successModal').style.display = 'flex';
+                } else {
+                    alert(result.error || 'Xatolik yuz berdi');
+                    btn.disabled = false;
+                    btn.textContent = '✅ Buyurtmani tasdiqlash';
+                }
+            } catch (err) {
+                alert('Server bilan bog\'lanishda xatolik');
+                btn.disabled = false;
+                btn.textContent = '✅ Buyurtmani tasdiqlash';
+            }
+        });
+    });
+
+    function renderCheckout() {
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        const container = document.getElementById('checkoutItems');
+        const totalEl = document.getElementById('checkoutTotal');
+
+        if (cart.length === 0) {
+            window.location.href = '/cart';
+            return;
+        }
+
+        let total = 0;
+        container.innerHTML = cart.map(item => {
+            const itemTotal = item.price * item.qty;
+            total += itemTotal;
+            return `
+            <div class="checkout-item">
+                <img src="${item.image}" alt="${item.name}">
+                <div class="checkout-item-info">
+                    <span class="item-name">${item.name}</span>
+                    <span class="item-qty">${item.qty} x ${Number(item.price).toLocaleString()} so'm</span>
+                </div>
+                <span class="item-total">${itemTotal.toLocaleString()} so'm</span>
+            </div>
+        `;
+        }).join('');
+
+        totalEl.textContent = total.toLocaleString() + " so'm";
+    }
+</script>
+{% endblock %}

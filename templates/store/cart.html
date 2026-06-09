@@ -1,0 +1,40 @@
+{% extends "store/base.html" %}
+{% block title %}🛒 Savat — Basketball Shop{% endblock %}
+
+{% block content %}
+<section class="section page-section">
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">🛒 Savat</h1>
+        </div>
+
+        <div id="cartContent">
+            <div class="cart-empty" id="cartEmpty" style="display:none;">
+                <div class="empty-icon">🛒</div>
+                <h3>Savat bo'sh</h3>
+                <p>Tovarlarni savatga qo'shing</p>
+                <a href="/catalog" class="btn btn-primary">📦 Katalogga o'tish</a>
+            </div>
+
+            <div id="cartItems" class="cart-items"></div>
+
+            <div class="cart-summary" id="cartSummary" style="display:none;">
+                <div class="summary-row">
+                    <span>Jami:</span>
+                    <span class="summary-total" id="cartTotal">0 so'm</span>
+                </div>
+                <div class="cart-actions">
+                    <a href="/catalog" class="btn btn-outline">🔙 Xaridni davom ettirish</a>
+                    <a href="/checkout" class="btn btn-primary btn-lg">💳 Buyurtma berish</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', renderCart);
+</script>
+{% endblock %}

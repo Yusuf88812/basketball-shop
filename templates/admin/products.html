@@ -1,0 +1,131 @@
+{% extends "admin/base.html" %}
+{% block title %}📦 Tovarlar{% endblock %}
+{% block nav_products %}active{% endblock %}
+{% block page_title %}📦 Tovarlar boshqaruvi{% endblock %}
+
+{% block content %}
+<div class="page-actions">
+    <button class="btn btn-primary" onclick="document.getElementById('addModal').style.display='flex'">
+        ➕ Tovar qo'shish
+    </button>
+</div>
+
+<div class="table-wrapper">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Rasm</th>
+                <th>Nomi</th>
+                <th>Kategoriya</th>
+                <th>Narxi</th>
+                <th>Qoldiq</th>
+                <th>Featured</th>
+                <th>Amallar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td><img src="{{ product.image }}" alt="{{ product.name }}" class="table-img"></td>
+                <td><strong>{{ product.name }}</strong></td>
+                <td>{{ product.category.name if product.category else '—' }}</td>
+                <td>
+                    {{ "{:,.0f}".format(product.price) }} so'm
+                    {% if product.old_price %}
+                    <br><s class="text-muted">{{ "{:,.0f}".format(product.old_price) }}</s>
+                    {% endif %}
+                </td>
+                <td>
+                    <span class="{% if product.stock <= 5 %}text-danger{% endif %}">{{ product.stock }}</span>
+                </td>
+                <td>{{ '⭐' if product.is_featured else '—' }}</td>
+                <td class="actions-cell">
+                    <a href="/admin/products/edit/{{ product.id }}" class="btn btn-sm btn-outline">✏️</a>
+                    <form method="post" action="/admin/products/delete/{{ product.id }}" style="display:inline"
+                        onsubmit="return confirm('Rostdan o\'chirmoqchimisiz?')">
+                        <button class="btn btn-sm btn-danger">🗑️</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            {% if not products %}
+            <tr>
+                <td colspan="7" class="empty-cell">Tovarlar yo'q. Yangi tovar qo'shing!</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Add Product Modal -->
+<div class="modal" id="addModal" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
+    <div class="modal-content modal-lg">
+        <div class="modal-header">
+            <h3>➕ Yangi tovar qo'shish</h3>
+            <button class="modal-close" onclick="this.closest('.modal').style.display='none'">&times;</button>
+        </div>
+        <form method="post" action="/admin/products/add" enctype="multipart/form-data">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Tovar nomi *</label>
+                    <input type="text" name="name" required class="form-input" placeholder="Nike Air Jordan">
+                </div>
+                <div class="form-group">
+                    <label>Narxi (so'm) *</label>
+                    <input type="number" name="price" required class="form-input" placeholder="500000">
+                </div>
+                <div class="form-group">
+                    <label>Eski narxi (so'm)</label>
+                    <input type="number" name="old_price" class="form-input" placeholder="700000">
+                </div>
+                <div class="form-group">
+                    <label>Qoldiq (dona)</label>
+                    <input type="number" name="stock" value="0" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label>Kategoriya</label>
+                    <select name="category_id" class="form-input">
+                        <option value="">— Tanlang —</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}">{{ cat.icon }} {{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="is_featured" value="true"> ⭐ Featured (tavsiya etish)
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Tavsif</label>
+                <textarea name="description" class="form-input form-textarea"
+                    placeholder="Tovar haqida batafsil..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Rasm</label>
+                <input type="file" name="image" accept="image/*" class="form-input" onchange="previewImg(this)">
+                <img id="preview" class="img-preview" style="display:none;">
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-outline"
+                    onclick="this.closest('.modal').style.display='none'">Bekor qilish</button>
+                <button type="submit" class="btn btn-primary">💾 Saqlash</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    function previewImg(input) {
+        const preview = document.getElementById('preview');
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => { preview.src = e.target.result; preview.style.display = 'block'; };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "admin/base.html" %}
+{% block title %}✏️ Tovar tahrirlash{% endblock %}
+{% block nav_products %}active{% endblock %}
+{% block page_title %}✏️ {{ product.name }} — Tahrirlash{% endblock %}
+
+{% block content %}
+<div class="edit-form-container">
+    <form method="post" action="/admin/products/edit/{{ product.id }}" enctype="multipart/form-data" class="edit-form">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Tovar nomi *</label>
+                <input type="text" name="name" required value="{{ product.name }}" class="form-input">
+            </div>
+            <div class="form-group">
+                <label>Narxi (so'm) *</label>
+                <input type="number" name="price" required value="{{ product.price|int }}" class="form-input">
+            </div>
+            <div class="form-group">
+                <label>Eski narxi (so'm)</label>
+                <input type="number" name="old_price" value="{{ product.old_price|int if product.old_price else '' }}"
+                    class="form-input">
+            </div>
+            <div class="form-group">
+                <label>Qoldiq (dona)</label>
+                <input type="number" name="stock" value="{{ product.stock }}" class="form-input">
+            </div>
+            <div class="form-group">
+                <label>Kategoriya</label>
+                <select name="category_id" class="form-input">
+                    <option value="">— Tanlang —</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if product.category_id==cat.id %}selected{% endif %}>
+                        {{ cat.icon }} {{ cat.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="is_featured" value="true" {% if product.is_featured %}checked{% endif
+                        %}> ⭐ Featured
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Tavsif</label>
+            <textarea name="description" class="form-input form-textarea">{{ product.description or '' }}</textarea>
+        </div>
+        <div class="form-group">
+            <label>Hozirgi rasm</label>
+            <img src="{{ product.image }}" alt="{{ product.name }}" class="current-img">
+        </div>
+        <div class="form-group">
+            <label>Yangi rasm (ixtiyoriy)</label>
+            <input type="file" name="image" accept="image/*" class="form-input">
+        </div>
+        <div class="form-actions">
+            <a href="/admin/products" class="btn btn-outline">← Orqaga</a>
+            <button type="submit" class="btn btn-primary">💾 Saqlash</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

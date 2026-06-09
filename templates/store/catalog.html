@@ -1,0 +1,93 @@
+{% extends "store/base.html" %}
+{% block title %}📦 Katalog — Basketball Shop{% endblock %}
+
+{% block content %}
+<section class="section page-section">
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">📦 Katalog</h1>
+            <p class="page-subtitle">Barcha basketbol tovarlarimiz</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="catalog-filters">
+            <div class="filter-tabs">
+                <a href="/catalog" class="filter-tab {% if not current_category %}active{% endif %}">Hammasi</a>
+                {% for cat in categories %}
+                <a href="/catalog?category={{ cat.id }}"
+                    class="filter-tab {% if current_category == cat.id %}active{% endif %}">
+                    {{ cat.icon }} {{ cat.name }}
+                </a>
+                {% endfor %}
+            </div>
+            <div class="search-box">
+                <form action="/catalog" method="get" class="search-form">
+                    {% if current_category %}
+                    <input type="hidden" name="category" value="{{ current_category }}">
+                    {% endif %}
+                    <input type="text" name="search" value="{{ search }}" placeholder="🔍 Tovar qidirish..."
+                        class="search-input">
+                    <button type="submit" class="btn btn-primary btn-sm">Qidirish</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        {% if products %}
+        <div class="products-grid">
+            {% for product in products %}
+            <div class="product-card" data-id="{{ product.id }}">
+                <div class="product-image">
+                    <img src="{{ product.image }}" alt="{{ product.name }}" loading="lazy">
+                    {% if product.old_price %}
+                    <span class="product-badge badge-sale">-{{ ((product.old_price - product.price) / product.old_price
+                        * 100)|int }}%</span>
+                    {% endif %}
+                    {% if product.is_featured %}
+                    <span class="product-badge badge-hot">🔥 HIT</span>
+                    {% endif %}
+                    {% if product.stock <= 0 %} <span class="product-badge badge-out">Tugagan</span>
+                        {% endif %}
+                </div>
+                <div class="product-info">
+                    <h3 class="product-name">{{ product.name }}</h3>
+                    <div class="product-category">
+                        {% if product.category %}{{ product.category.icon }} {{ product.category.name }}{% endif %}
+                    </div>
+                    <div class="product-price">
+                        <span class="current-price">{{ "{:,.0f}".format(product.price) }} so'm</span>
+                        {% if product.old_price %}
+                        <span class="old-price">{{ "{:,.0f}".format(product.old_price) }} so'm</span>
+                        {% endif %}
+                    </div>
+                    <div class="product-stock">
+                        {% if product.stock > 0 %}
+                        <span class="in-stock">✅ Mavjud ({{ product.stock }})</span>
+                        {% else %}
+                        <span class="out-stock">❌ Tugagan</span>
+                        {% endif %}
+                    </div>
+                    <div class="product-actions">
+                        <a href="/product/{{ product.id }}" class="btn btn-sm btn-outline">Ko'rish</a>
+                        {% if product.stock > 0 %}
+                        <button class="btn btn-sm btn-primary add-to-cart-btn"
+                            onclick="addToCart({{ product.id }}, '{{ product.name }}', {{ product.price }}, '{{ product.image }}')">
+                            🛒 Savatga
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">🏀</div>
+            <h3>Tovarlar topilmadi</h3>
+            <p>Boshqa kategoriyani tanlang yoki qidiruv so'zini o'zgartiring</p>
+            <a href="/catalog" class="btn btn-primary">Barcha tovarlar</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
